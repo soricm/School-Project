@@ -1,0 +1,209 @@
+<!DOCTYPE html> 
+<meta charset="utf-8">
+
+<script src="leaflet.js"> // Bibliothèque Leaflet : http://leafletjs.com/ </script>
+<script src="popup.js"></script>
+<script src="comments.js"></script>
+
+
+<link rel="stylesheet" href="style2.css" />
+<link rel="stylesheet" type="text/css" href="leaflet.css" /> 
+<link rel="stylesheet" type="text/css" href="style_comments.css" /> 
+
+<!--Insertion de l'icone-->
+<head>
+  <link rel="icon"  href="https://previews.123rf.com/images/moleks/moleks1510/moleks151000158/45862764-pont-ic%C3%B4ne-bouton-vecteur-logo-symbole-concept-.jpg">
+</head> 
+
+<title>Ponts remarquables</title>
+
+<body onload="load_data();">
+  <header><div id="header"><h1> Notre site de Ponts</h1></div></header>
+
+  <nav>
+    <ul>
+      <li><div>
+        <div class = "boutons">
+          <button id="add_user"class="show_popup" data-popup="user_editor">Créer Compte</button>
+          <button id="add_comment" class="show_popup" data-popup="message_editor">Poster Commentaire</button>
+          <button id="show_comments">Tous les commentaires du pont</button>
+        </div>
+      </div>
+    </li>
+      <li> <a href="mailto:marijan.soric@ecl21.ec-lyon.fr, remi.laurens-berge@ecl21.ec-lyon.fr, valentin.lhote@ecl21.ec-lyon.fr, valentin.verdon@ecl21.ec-lyon.fr, lubin.levesy@ecl21.ec-lyon.fr?&subject=Site des Ponts&cc=&bcc=&body=Une remarque conternant votre site :">Nous contacter</a></li>
+    </ul>
+  </nav> 
+  <br/>
+<!-- Récupération de la liste des ponts insolites au chargement de la page -->
+
+  <br/>
+
+  <div id="pwd_request" class="resizable popup">
+  <header id="pwd_request_header" class="handle">Entrer le mot de passe</header>
+  <label><span>Password : </span><input id="enter_pwd" type="password"></label>
+  <footer><button id="confirm_pwd">&#x2705;</button></footer>
+  </div>
+      
+    <div id="message_editor" class="resizable popup">
+      <header id="message_editor_header" class="handle">Laissez votre commentaire</header>
+      <label><span>Pseudo         : </span><input id="input_pseudo"></label>
+      <label><span>Password       : </span><input id="input_password" type="password"></label>
+      <label><span>Date de visite : </span><input id="input_date"></label><br>
+      <label><span>Message        : </span><textarea id="input_message"></textarea></label>
+      <br/>
+      <footer>
+        <button id="create_message">&#x2705;</button>
+        <button id="hide_editor" class="hide_popup">&#10060;</button>
+      </footer>
+    </div>
+
+    <div id="user_editor" class="resizable popup">
+      <header id="user_editor_header" class ="handle"> Création d'un nouvel utilisateur</header>
+      <label><span>Pseudo         : </span><input id="input_user_pseudo"></label>
+      <label><span>Mail           : </span><input id="input_email"></label>
+      <label><span>Password       : </span><input id="input_user_password" type="password"></label>
+      </footer>
+        <button id="create_user">&#x2705;</button>
+        <button id="hide_editor" class="hide_popup">&#10060;</button>
+      </footer>
+    </div>
+
+
+ <!--Afficher les commentaires pour un pont selectionné-->
+
+  <div id = "messages" class = "commentaires"></div>
+
+
+  <!-- Zone pour l'insertion de la carte OSM via Leaflet -->
+ <div id="map" style="margin-bottom:1.33em" class = "map"></div>  
+
+
+
+
+  <!-- Zone pour l'affichage dynamique des descriptions -->
+  <div id="description"></div>
+
+
+  
+
+<script>
+ //lignes d'appel
+show_comments.addEventListener('click',display_messages);
+create_message.addEventListener('click',post_message);
+create_user.addEventListener('click',post_user);
+
+// variable globale pour le nom du site sélectionné via le marqueur
+var site_name;
+// Création d'une carte dans la balise div "map",
+// et position de la vue sur un point donné et un niveau de zoom
+var map = L.map('map').setView([25,0], 1.5);
+
+// Ajout d'une couche de dalles OpenStreetMap
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+     }).addTo(map);
+
+// Fonction appelée au chargement de la page
+function load_data () {
+
+  // objet pour l'envoi d'une requête Ajax
+  var xhr = new XMLHttpRequest();
+
+  // fonction appelée lorsque la réponse à la requête (liste des ponts insolites) sera arrivée
+  xhr.onload = function() {
+
+    // transformation des données renvoyées par le serveur
+    // responseText est du type string, data est une liste
+    var data = JSON.parse(this.responseText);
+
+    // boucle sur les ponts
+    for ( n = 0; n < data.length; n++ ) {
+      // insertion d'un marqueur à la position du pont,
+      // attachement d'une popup, capture de l'événement 'clic'
+      // ajout d'une propriété personnalisée au marqueur avec
+      // l'identifiant unique du point d'intérêt
+      L.marker([data[n].lat,data[n].lon]).addTo(map)
+       .bindPopup(data[n].name)
+       .addEventListener('click',OnMarkerClick)
+       .idname = data[n].name;
+    }
+  };
+
+  // Envoi de la requête Ajax pour la récupération de la liste des ponts insolites
+  xhr.open('GET','/ponts',true);
+  xhr.send();
+}
+
+// Fonction appelée lors d'un clic sur un marqueur
+function OnMarkerClick (e) {
+
+  // objet pour l'envoi d'une requête Ajax
+  var xhr = new XMLHttpRequest();
+
+  // fonction appelée lorsque la réponse à la requête (description d'un pont insolite) sera arrivée
+  xhr.onload = function() {
+
+    // transformation des données renvoyées par le serveur
+    // responseText est du type string, data est un objet
+    var data = JSON.parse(this.responseText);
+
+  // Fonction appelée au chargement de la page
+
+  
+    // objet pour l'envoi d'une requête Ajax
+    
+  
+
+    // affichage dans la zone 'description' du nom (reprise dans le popup)
+    // et de la description récupérée par l'appel au serveur
+    
+    var html = '<h2><a href="' + data.wiki + '">' + data.name+ '</a></h2><br/>'; 
+    html += '<img src="' + data.photo + '"height = "400"><br/>';
+    html += '<div class="para"><table>'+
+  '<thead><div class="imp">Caractéristiques du pont</div>'+
+  '</thead>'+
+  '<tbody>'+
+      '<tr>'+
+         '<th>Question ?</th>'+
+          '<th>Réponse</th>'+
+      '</tr>'+
+      
+          '<td>Longueur du pont</td>'+
+          '<td>'+ data.length + " Km"+'<br></td>'+
+      '</tr>'+
+      '<tr>'+
+          '<td>Année d&#8217inauguration </td>'+
+          '<td>' + data.year+'</td>'+
+      '</tr>'+
+      '<tr>'+
+          '<td>Source</td>'+
+          '<td>'+
+    '<div id="source"><a href="' + data.dbpedia + '">' + data.dbpedia + '</a></div>'+
+      '<tr>'+
+      '<tfoot><p>Liste non exhaustive des caractéristiques intéressantes :</p></tfoot>'+
+  '</tbody>'+
+'</table><br><br></div><br/><br/><br/>';
+    html += "<div class='para'><div class='imp'>Description</div> <br> <p>" + data.desc+'</p></div>';
+    html +="<div class='para'><div class='imp'>Envie de partager sur vos réseaux ?</div>";
+    html += '<div id="row">'+
+        '<a href="mailto:info@example.com?&subject=&cc=&bcc=&body=Ce pont me fait penser à toi ! '+data.wiki+'%0A"><img class="left" src="logomail.png" alt="Mail"  height="100" /></a>'+
+        '</div></div>';
+    html +='<br><br><br><br><br><br><br><br>';
+    for( k in data.other ) {
+      html += '<span><b>' + k + '</b>: ' + data.other[k] + '</span>';
+    }
+    html += "<div class='para'><div class='imp'>Envie d'un autre pont ?</div>";
+    html += '<p><a href="#header"><b>Cliquez ici pour revenir à la carte !</b></a></p></div>';
+    html +='<footer><h3>Merci de votre visite, à bientôt !</h3></footer>';
+
+    description.innerHTML =  html;
+  
+    };
+
+  // Le numéro du pont est récupéré via la propriété personnalisée du marqueur
+  site_name = e.target.idname
+  // Envoi de la requête Ajax pour la récupération de la description du pont de numéro idnum
+  xhr.open('GET','/pont/'+site_name,true);
+  xhr.send();
+}
+</script>

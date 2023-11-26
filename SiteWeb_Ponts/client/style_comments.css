@@ -1,0 +1,112 @@
+/*
+#ACACAC #000000 #96172E
+  gris noir rouge
+*/
+#comments {
+  visibility:hidden;
+  margin-bottom: 1.33em;
+  color: white;
+}
+article header .delete {
+  right: 0.5rem;
+  position: absolute;
+  background-color: #96172E;
+  color: white;
+  border-radius: 3px;
+  padding: 0px 4px 1px;
+  cursor: pointer;
+}
+.popup {
+  visibility: hidden;
+  position: absolute;
+  background-color:  rgb(30,30,30);
+  z-index: 10000;
+  border: 2px solid white;
+  border-radius: 10px;
+  padding: 20px;
+
+}
+.popup label {
+  color: black;
+}
+#message_editor {
+  color: black;
+  background-color: rgb(30,30,30);
+}
+
+#messages{
+  color: white;
+  background-color: rgb(30,30,30);
+}
+
+
+
+
+
+
+
+
+#user_editor{
+  color: white;
+  background-color: rgb(30,30,30);
+  }
+  
+#pwd_request {
+  width: 33vw;
+  height: 100px;
+  top: 33vh;
+  left: 33vw;
+  color: black;
+  background-color: rgb(30,30,30);
+}
+.popup header {
+  font-size: 120%;
+  background-color: #96172E;
+  margin: -20px -20px 1.33em;
+  padding: 5px 0.5em;
+  color: white;
+}
+.popup label span {
+  position: absolute;
+  display: block;
+  color: white;
+  font-family: tahoma;
+}
+.popup input {
+  margin-bottom: 0.33em;
+  color: white;
+}
+.popup input, .popup textarea {
+  margin-left: 8rem;
+  box-sizing: border-box;
+  background-color: #000;
+  border: 1px solid white;
+  border-radius: 5px;
+  width: calc(100% - 8rem);
+  color: white;
+  font-family: tahoma;
+  font-size: 13.3px;
+  padding: 3px 0.5em;
+}
+.popup footer {
+  display: ruby-text;
+  justify-content: space-around;
+  color: white;
+}
+.popup button {
+  background-color: rgb(30,30,30);
+  margin: 0em;
+  border: 0px solid;
+  border-radius: 3px;
+  padding: 0px 0.1em;
+  font-family: tahoma;
+  font-size: 150%;
+}
+
+#message_editor_header, #user_editor_header, #pwd_request, #pwd_request_header
+{
+  text-align: center;
+  font-size: 40px;
+  font-style: bold;
+  padding: auto;
+}
